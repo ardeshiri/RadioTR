@@ -1,7 +1,7 @@
 
-
+#define buffc 10
 char s0inbuff[550];
-char s1inbuff[6][550];
+char s1inbuff[buffc][550];
 
 bool AUX = false;
 bool change = false;
@@ -109,12 +109,45 @@ int process(char* str, int len)
             Serial.write('|');
             Serial.write('\0');
             memset(s1inbuff[currbuffp], '\0', sizeof(s1inbuff[currbuffp]));
-            (++currbuffp) %= 6;
+            (++currbuffp) %= buffc;
             overflow = false;
             bufffull = false;
             return 1;
           }
         }
+
+        if (strcmp(chp, "A") == 0)
+        {
+          while(1)
+          {
+          if (strlen(s1inbuff[currbuffp]) == 0)
+          {
+            char eb[] {"#D,E|"};
+            Serial.write(eb, sizeof(eb));
+            return 1;
+          }
+          else
+          {
+            char dh[] {'#', 'D', ','};
+            char sh[] {'#', 'S', ','};
+
+            if (s1inbuff[currbuffp][0] == 'D')
+              Serial.write(dh, sizeof(dh));
+            if (s1inbuff[currbuffp][0] == 'S')
+              Serial.write(sh, sizeof(sh));
+            --fbuffc;
+            Serial.write(&s1inbuff[currbuffp][1], strlen(s1inbuff[currbuffp]) - 1);
+            Serial.write('|');
+            Serial.write('\0');
+            memset(s1inbuff[currbuffp], '\0', sizeof(s1inbuff[currbuffp]));
+            (++currbuffp) %= buffc;
+            overflow = false;
+            bufffull = false;
+          }}
+        }
+
+
+        
       }
     }
 
@@ -267,6 +300,10 @@ void setup() {
   memset(s1inbuff[3], '\0', sizeof(s1inbuff[3]));
   memset(s1inbuff[4], '\0', sizeof(s1inbuff[4]));
   memset(s1inbuff[5], '\0', sizeof(s1inbuff[5]));
+  memset(s1inbuff[6], '\0', sizeof(s1inbuff[6]));
+  memset(s1inbuff[7], '\0', sizeof(s1inbuff[7]));
+  memset(s1inbuff[8], '\0', sizeof(s1inbuff[8]));
+  memset(s1inbuff[9], '\0', sizeof(s1inbuff[9]));
 
   Serial.begin(9600, SERIAL_8N1);
   Serial1.begin(9600, SERIAL_8N1);
@@ -379,7 +416,7 @@ void loop() {
 
       ++fbuffc;
       Serial1.readBytes(&s1inbuff[curwbuffp][1], sizeof(s1inbuff[curwbuffp]) - 1);
-      curwbuffp = (curwbuffp + 1) % 6;
+      curwbuffp = (curwbuffp + 1) % buffc;
       char nd[] {"#MS,ND|"};
       Serial.write(nd, sizeof(nd));
 
